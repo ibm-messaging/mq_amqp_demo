@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+
+  mq:
+    platform: linux/amd64
+    image: ibm-mqadvanced-server-dev:9.4.1.1-amd64
+    ports:
+      - "1414:1414"
+      - "9443:9443"
+      - "5672:5672"
+    environment:
+      LICENSE: accept
+      MQ_QMGR_NAME: QM1
+    secrets:
+      - mqAdminPassword
+      - mqAppPassword
+    healthcheck:
+      test: ["CMD", "sh", "-c", "tail -n 10 /var/mqm/qmgrs/QM1/errors/amqp_0.log | grep 'AMQP Service started successfully'"]
+      start_period: 1m
+      interval: 1m30s
+      retries: 20
+    networks:
+      - amqp-quickstart-network
+
+  producer:
+    image: quarkus-quickstarts/amqp-quickstart-producer:1.0-${QUARKUS_MODE:-jvm}
+    build:
+      context: amqp-quickstart-producer
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    environment:
+      AMQP_HOST: mq
+      AMQP_PORT: 5672
+    ports:
+      - "8080:8080"
+    depends_on:
+      mq:
+        condition: service_healthy  
+    networks:
+      - amqp-quickstart-network
+
+  processor:
+    image: quarkus-quickstarts/amqp-quickstart-processor:1.0-${QUARKUS_MODE:-jvm}
+    build:
+      context: amqp-quickstart-processor
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    environment:
+      AMQP_HOST: mq
+      AMQP_PORT: 5672 
+    depends_on:
+      - producer
+    networks:
+      - amqp-quickstart-network
+
+networks:
+  amqp-quickstart-network:
+    name: amqp-quickstart
+
+secrets:
+  mqAdminPassword:
+    file: "admin-password.txt"
+  mqAppPassword:
+    file: "app-password.txt"
+    
