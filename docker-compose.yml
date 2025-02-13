@@ -34,8 +34,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      mq:
-        condition: service_healthy  
+      - processor
     networks:
       - amqp-quickstart-network
 
@@ -48,7 +47,8 @@ services:
       AMQP_HOST: mq
       AMQP_PORT: 5672 
     depends_on:
-      - producer
+      mq:
+        condition: service_healthy  
     networks:
       - amqp-quickstart-network
 
