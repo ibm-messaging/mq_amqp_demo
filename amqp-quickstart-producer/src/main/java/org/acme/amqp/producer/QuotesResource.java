@@ -17,7 +17,7 @@ import io.smallrye.mutiny.Multi;
 @Path("/quotes")
 public class QuotesResource {
 
-    @Channel("quote-requests") Emitter<String> quoteRequestEmitter; // <1>
+    @Channel("quote_requests") Emitter<String> quoteRequestEmitter; // <1>
 
     @Channel("quotes") Multi<Quote> quotes;
 
@@ -31,7 +31,7 @@ public Multi<Quote> stream() {
 }
 
     /**
-     * Endpoint to generate a new quote request id and send it to "quote-requests" AMQP queue using the emitter.
+     * Endpoint to generate a new quote request id and send it to "quote_requests" AMQP queue using the emitter.
      */
     @POST
     @Path("/request")
