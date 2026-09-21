@@ -4,12 +4,13 @@ services:
 
   mq:
     platform: linux/amd64
-    image: ibm-mqadvanced-server-dev:9.4.1.1-amd64
+    image: ibm-mqadvanced-server-dev:10.0.0.0-amd64
     ports:
       - "1414:1414"
       - "9443:9443"
       - "5672:5672"
     environment:
+      LANG: C
       LICENSE: accept
       MQ_QMGR_NAME: QM1
     secrets:
